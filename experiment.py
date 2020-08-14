@@ -15,7 +15,8 @@ def test(net, loader, criterion, c):
     return tot_loss/samples, correct/samples
 
 
-def learn(net, train_load, val_load, criterion, optim, c):
+def learn(net, train_load, val_load, criterion, optim, c, scheduler):
+    train, validation, validation_acc = [], [], []
     for e in range(c.epochs):
         tot_loss, samples = 0, 0
         for X, y in train_load:
@@ -27,8 +28,14 @@ def learn(net, train_load, val_load, criterion, optim, c):
             optim.step()
             tot_loss += loss.item()
             samples += len(X)
+        scheduler.step()
         print(f'Epoch {e}')
         print(f'Train loss: {tot_loss/samples}')
         v_loss, v_acc = test(net, val_load, criterion, c)
         print(f'Validation loss: {v_loss}')
         print(f'Validation acc: {v_acc}')
+        train.append(tot_loss/samples)
+        validation.append(v_loss)
+        validation_acc.append(v_acc)
+    return train, validation, validation_acc
+    

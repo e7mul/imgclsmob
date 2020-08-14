@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 from pytorch.pytorchcv.models.seresnet_cifar import seresnet20_cifar100
 from datasets import continual_wrapper, CIFAR100
 from experiment import learn, test
@@ -13,6 +14,9 @@ def main(config):
     acc_dict = {}
     trainset, valset = CIFAR100('data/')
     train_dict, val_dict = continual_wrapper(trainset, valset, num_tasks=10)
+    for i in range(3, 10):
+        del train_dict[i]
+        del val_dict[i]
 
     net = seresnet20_cifar100().to(config.device)
     criterion = nn.CrossEntropyLoss()
@@ -57,14 +61,12 @@ if __name__ == '__main__':
 
     @dataclass
     class Config:
-        num_tasks = 10
+        num_tasks = 3
         bs = 128
-        lr = 1e-2
+        lr = 1e-1
         mo = 0.9
-        epochs = 10
         device = torch.device('cuda:0')
 
+    exp_name = 'lr_schedule'
+
     main(Config)
-
-
-
